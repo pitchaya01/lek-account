@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LekAccount — บริการรับทำบัญชีมืออาชีพ</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=Sarabun:wght@300;400;500;600;700&family=Montserrat:wght@300;400;700;900&family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0c1a35;
+  --blue: #2952d9;
+  --blue-light: #e8eeff;
+  --blue-mid: #4169e8;
+  --gold: #c8973a;
+  --white: #fafaf7;
+  --gray-100: #f4f3ef;
+  --gray-200: #e8e6df;
+  --gray-400: #a09d93;
+  --gray-600: #6b6860;
+  --gray-800: #2e2c28;
+  --text: #1c1a17;
+  --radius: 10px;
+  --shadow: 0 4px 24px rgba(12,26,53,0.08);
+  --shadow-lg: 0 12px 48px rgba(12,26,53,0.14);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Sarabun', sans-serif;
+  background: var(--white);
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ── Grain overlay ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999; opacity: 0.4;
+}
+
+/* ── TYPOGRAPHY ── */
+.display { font-family: 'Prompt', sans-serif; }
+h1,h2,h3 { font-weight: 600; }
+h1 { font-family: 'Prompt', sans-serif; font-size: clamp(2.4rem, 5vw, 3.8rem); line-height: 1.15; color: var(--navy); }
+h2 { font-family: 'Prompt', sans-serif; font-size: clamp(1.6rem, 3vw, 2.4rem); color: var(--navy); line-height: 1.25; }
+h3 { font-size: 1.1rem; font-weight: 600; color: var(--navy); }
+p { color: var(--gray-600); }
+
+/* ── LAYOUT ── */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+section { padding: 80px 0; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 0 24px;
+  background: rgba(250,250,247,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--gray-200);
+  transition: box-shadow 0.3s;
+}
+nav.scrolled { box-shadow: var(--shadow); }
+.nav-inner {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; align-items: center; gap: 32px;
+  height: 64px;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none;
+}
+.nav-logo-mark {
+  width: 32px; height: 32px;
+  background: var(--navy);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.nav-logo-mark::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 40%;
+  background: var(--blue);
+}
+.nav-logo-mark span {
+  position: relative; z-index: 1;
+  font-family: 'DM Serif Display', serif;
+  font-size: 15px; color: #fff; font-weight: 400;
+}
+.nav-logo-text { font-weight: 700; font-size: 1rem; color: var(--navy); }
+
+/* ── SPD Advisory Logo ── */
+.spd-logo-wrap {
+  display: flex; align-items: center; gap: 12px; text-decoration: none;
+}
+.spd-icon {
+  flex-shrink: 0;
+}
+.spd-wordmark {
+  display: flex; flex-direction: column; gap: 1px;
+}
+.spd-letters {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 900; font-size: 18px;
+  letter-spacing: 6px; padding-left: 6px;
+  color: var(--navy); line-height: 1;
+}
+.spd-divider-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(12,26,53,0.3), transparent);
+}
+.spd-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300; font-size: 9px;
+  letter-spacing: 4px; text-transform: uppercase;
+  color: var(--gray-600); padding-left: 2px;
+}
+.nav-links { display: flex; gap: 28px; margin-left: auto; }
+.nav-links a {
+  text-decoration: none; font-size: 0.875rem;
+  font-weight: 500; color: var(--gray-600);
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--navy); }
+.nav-cta { display: flex; gap: 10px; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 22px; border-radius: var(--radius);
+  font-family: 'Sarabun', sans-serif;
+  font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; border: none; text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background: var(--blue); color: #fff;
+  box-shadow: 0 4px 16px rgba(41,82,217,0.3);
+}
+.btn-primary:hover { background: var(--blue-mid); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(41,82,217,0.4); }
+.btn-outline {
+  background: transparent; color: var(--navy);
+  border: 1.5px solid var(--gray-200);
+}
+.btn-outline:hover { border-color: var(--navy); }
+.btn-sm { padding: 7px 16px; font-size: 0.82rem; }
+.btn-white { background: #fff; color: var(--blue); }
+.btn-white:hover { background: var(--blue-light); }
+
+/* ── HERO ── */
+#hero {
+  padding-top: 140px; padding-bottom: 80px;
+  background: linear-gradient(160deg, var(--white) 0%, #eef1fc 100%);
+  position: relative; overflow: hidden;
+}
+#hero::before {
+  content: '';
+  position: absolute; top: -100px; right: -100px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(41,82,217,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--blue-light); color: var(--blue);
+  border-radius: 20px; padding: 5px 14px;
+  font-size: 0.8rem; font-weight: 600;
+  margin-bottom: 20px;
+  border: 1px solid rgba(41,82,217,0.15);
+}
+.hero-badge::before { content: '✦'; font-size: 0.7rem; }
+.hero-title { margin-bottom: 12px; }
+.hero-title em { font-style: italic; color: var(--blue); }
+.hero-sub { font-size: 1.05rem; color: var(--gray-600); max-width: 520px; margin-bottom: 32px; line-height: 1.7; }
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 56px; }
+.hero-stats {
+  display: flex; gap: 40px; flex-wrap: wrap;
+  padding-top: 32px;
+  border-top: 1px solid var(--gray-200);
+}
+.hero-stat-num {
+  font-family: 'Prompt', sans-serif;
+  font-size: 2.4rem; color: var(--navy); line-height: 1; font-weight: 700;
+}
+.hero-stat-num span { color: var(--blue); }
+.hero-stat-label { font-size: 0.82rem; color: var(--gray-400); margin-top: 4px; }
+
+/* ── INDUSTRY STRIP ── */
+.industry-strip {
+  background: var(--navy);
+  padding: 14px 0;
+  overflow: hidden;
+}
+.industry-strip-inner {
+  display: flex; gap: 32px; align-items: center;
+  white-space: nowrap;
+  animation: marquee 18s linear infinite;
+}
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.industry-item {
+  font-size: 0.82rem; color: rgba(255,255,255,0.6);
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+}
+.industry-item::after { content: '·'; color: rgba(255,255,255,0.25); font-size: 1.2rem; }
+
+/* ── SECTION LABEL ── */
+.section-label {
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--blue);
+  margin-bottom: 12px;
+}
+
+/* ── SERVICES ── */
+#services { background: var(--white); }
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px; margin-top: 48px;
+}
+@media (max-width: 900px) {
+  .services-grid { grid-template-columns: repeat(2, 1fr); }
+}
+.service-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 14px;
+  padding: 32px 28px;
+  transition: all 0.3s;
+  position: relative; overflow: hidden;
+}
+.service-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--blue), var(--blue-mid));
+  opacity: 0; transition: opacity 0.3s;
+}
+.service-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: transparent; }
+.service-card:hover::before { opacity: 1; }
+.service-icon {
+  width: 52px; height: 52px; border-radius: 12px;
+  background: var(--blue-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 20px;
+}
+.service-card h3 { margin-bottom: 10px; }
+.service-card p { font-size: 0.88rem; line-height: 1.7; }
+.service-items { margin-top: 16px; display: flex; flex-direction: column; gap: 6px; }
+.service-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.83rem; color: var(--gray-600);
+}
+.service-item::before {
+  content: '';
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--blue); flex-shrink: 0;
+}
+
+/* ── PRICING ── */
+#pricing { background: var(--gray-100); }
+.pricing-toggle {
+  display: inline-flex; align-items: center;
+  background: var(--gray-200); border-radius: 30px;
+  padding: 4px; margin-bottom: 40px; margin-top: 32px;
+}
+.toggle-btn {
+  padding: 8px 24px; border-radius: 26px;
+  font-size: 0.875rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+  border: none; background: transparent; color: var(--gray-600);
+  font-family: 'Sarabun', sans-serif;
+}
+.toggle-btn.active { background: var(--white); color: var(--navy); box-shadow: var(--shadow); }
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+.pricing-card {
+  background: var(--white);
+  border: 1.5px solid var(--gray-200);
+  border-radius: 14px;
+  padding: 24px 16px;
+  text-align: center;
+  transition: all 0.3s;
+  position: relative;
+}
+.pricing-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+.pricing-card.featured {
+  background: var(--navy);
+  border-color: var(--navy);
+  transform: scale(1.04);
+}
+.pricing-card.featured:hover { transform: scale(1.04) translateY(-2px); }
+.pricing-badge {
+  position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+  background: var(--blue); color: #fff;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 10px;
+  white-space: nowrap;
+}
+.pricing-plan {
+  font-family: 'Prompt', sans-serif;
+  font-size: 1.5rem; color: var(--navy); margin-bottom: 4px; font-weight: 600;
+}
+.pricing-card.featured .pricing-plan { color: #fff; }
+.pricing-range { font-size: 0.75rem; color: var(--gray-400); margin-bottom: 16px; }
+.pricing-card.featured .pricing-range { color: rgba(255,255,255,0.55); }
+.pricing-price {
+  font-family: 'Prompt', sans-serif;
+  font-size: 2rem; color: var(--navy); line-height: 1; font-weight: 700;
+}
+.pricing-card.featured .pricing-price { color: #fff; }
+.pricing-period { font-size: 0.78rem; color: var(--gray-400); margin-top: 2px; margin-bottom: 20px; }
+.pricing-card.featured .pricing-period { color: rgba(255,255,255,0.5); }
+.pricing-items { text-align: left; display: flex; flex-direction: column; gap: 7px; margin-bottom: 20px; }
+.pricing-item {
+  display: flex; align-items: flex-start; gap: 7px;
+  font-size: 0.78rem; color: var(--gray-600);
+}
+.pricing-card.featured .pricing-item { color: rgba(255,255,255,0.75); }
+.pricing-item::before { content: '✓'; color: var(--blue); font-weight: 700; flex-shrink: 0; font-size: 0.72rem; margin-top: 2px; }
+.pricing-card.featured .pricing-item::before { color: #93c5fd; }
+.pricing-note {
+  text-align: center; margin-top: 20px;
+  font-size: 0.8rem; color: var(--gray-400);
+}
+
+/* ── WHAT WE DO ── */
+#what-we-do { background: var(--white); }
+.tasks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 48px; }
+.tasks-panel {
+  background: var(--gray-100);
+  border-radius: 16px; padding: 32px;
+}
+.tasks-title {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 24px;
+}
+.tasks-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--blue);
+}
+.task-item {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--gray-200);
+}
+.task-item:last-child { border-bottom: none; }
+.task-name { font-weight: 600; font-size: 0.9rem; color: var(--navy); margin-bottom: 4px; }
+.task-detail { font-size: 0.82rem; color: var(--gray-400); }
+
+/* ── TESTIMONIAL ── */
+#testimonial { background: var(--navy); padding: 80px 0; }
+.testimonial-card {
+  max-width: 680px; margin: 0 auto; text-align: center;
+}
+.quote-mark {
+  font-family: 'Prompt', sans-serif;
+  font-size: 5rem; line-height: 0.5;
+  color: var(--blue); margin-bottom: 24px; display: block; font-weight: 700;
+}
+.testimonial-text {
+  font-family: 'Prompt', sans-serif;
+  font-size: 1.4rem; color: #fff; line-height: 1.6;
+  margin-bottom: 28px; font-style: italic; font-weight: 300;
+}
+.testimonial-author { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.testimonial-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--blue-mid); display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: #fff;
+}
+.testimonial-name { font-weight: 600; color: #fff; }
+.testimonial-role { font-size: 0.82rem; color: rgba(255,255,255,0.5); }
+
+/* ── WHY US ── */
+#why-us { background: var(--white); }
+.why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+.why-card {
+  padding: 28px 24px;
+  border: 1px solid var(--gray-200);
+  border-radius: 14px;
+}
+.why-num {
+  font-family: 'Prompt', sans-serif;
+  font-size: 2.8rem; color: var(--blue-light); line-height: 1;
+  margin-bottom: 12px; font-weight: 700;
+}
+.why-card h3 { margin-bottom: 8px; }
+
+/* ── CTA ── */
+#cta {
+  background: linear-gradient(135deg, var(--navy) 0%, #1e3a8a 100%);
+  padding: 100px 0; text-align: center;
+  position: relative; overflow: hidden;
+}
+#cta::before {
+  content: '';
+  position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(41,82,217,0.2) 0%, transparent 60%);
+}
+.cta-content { position: relative; }
+.cta-content h2 { color: #fff; margin-bottom: 12px; }
+.cta-content p { color: rgba(255,255,255,0.6); font-size: 1rem; margin-bottom: 36px; }
+.cta-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.cta-contact { color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-top: 24px; }
+.cta-contact a { color: rgba(255,255,255,0.8); text-decoration: none; }
+
+/* ── FOOTER ── */
+footer {
+  background: #080f1e;
+  padding: 48px 0 24px;
+}
+.footer-inner {
+  display: grid; grid-template-columns: 2fr 1fr 1fr;
+  gap: 48px; margin-bottom: 40px;
+}
+.footer-brand p { font-size: 0.85rem; color: rgba(255,255,255,0.4); margin-top: 14px; max-width: 280px; }
+.footer-col h4 { font-size: 0.8rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 16px; }
+.footer-col a {
+  display: block; font-size: 0.875rem; color: rgba(255,255,255,0.55);
+  text-decoration: none; margin-bottom: 10px; transition: color 0.2s;
+}
+.footer-col a:hover { color: #fff; }
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 24px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.footer-bottom p { font-size: 0.78rem; color: rgba(255,255,255,0.25); }
+
+/* ── INDUSTRY GRID ── */
+.industry-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.industry-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 22px 16px;
+  text-align: center;
+  transition: all 0.25s;
+  cursor: default;
+}
+.industry-card:hover {
+  background: rgba(41,82,217,0.18);
+  border-color: rgba(41,82,217,0.4);
+  transform: translateY(-3px);
+}
+.industry-icon { font-size: 28px; margin-bottom: 10px; }
+.industry-name { font-weight: 700; font-size: 0.9rem; color: #fff; margin-bottom: 4px; }
+.industry-desc { font-size: 0.76rem; color: rgba(255,255,255,0.4); }
+
+@media (max-width: 768px) {
+  .industry-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── ANIMATIONS ── */
+.fade-up {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+.fade-up.delay-1 { transition-delay: 0.1s; }
+.fade-up.delay-2 { transition-delay: 0.2s; }
+.fade-up.delay-3 { transition-delay: 0.3s; }
+.fade-up.delay-4 { transition-delay: 0.4s; }
+.fade-up.delay-5 { transition-delay: 0.5s; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .services-grid { grid-template-columns: 1fr; }
+  .pricing-grid { grid-template-columns: 1fr 1fr; }
+  .tasks-grid { grid-template-columns: 1fr; }
+  .why-grid { grid-template-columns: 1fr; }
+  .footer-inner { grid-template-columns: 1fr; gap: 28px; }
+  .nav-links { display: none; }
+  .hero-stats { gap: 24px; }
+  .pricing-card.featured { transform: none; }
+}
+
+/* ── TWEAKS PANEL ── */
+#tweaks-panel {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: 14px; padding: 20px; width: 240px;
+  box-shadow: var(--shadow-lg); z-index: 1000;
+  display: none;
+  flex-direction: column; gap: 14px;
+}
+#tweaks-panel h4 {
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--gray-400); margin-bottom: 4px;
+}
+.tweak-row { display: flex; flex-direction: column; gap: 5px; }
+.tweak-label { font-size: 0.78rem; font-weight: 600; color: var(--gray-600); }
+.tweak-row input[type=color] { width: 100%; height: 32px; border-radius: 6px; border: 1px solid var(--gray-200); padding: 2px 4px; cursor: pointer; }
+.tweak-row select {
+  width: 100%; padding: 6px 8px; border-radius: 6px;
+  border: 1px solid var(--gray-200); font-family: 'Sarabun', sans-serif;
+  font-size: 0.82rem; background: var(--white); cursor: pointer;
+}
+.tweak-row input[type=range] { width: 100%; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-inner">
+    <a href="#" class="spd-logo-wrap">
+      <!-- SPD Diamond Icon — Light/Navy -->
+      <svg class="spd-icon" width="36" height="36" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="40,4 76,40 40,76 4,40" stroke="#0c1a35" stroke-width="1" fill="none" opacity="0.2"/>
+        <polygon points="40,14 66,40 40,66 14,40" stroke="#0c1a35" stroke-width="1.5" fill="none"/>
+        <path d="M30 32 Q24 32 24 38 Q24 44 30 44 Q36 44 36 50 Q36 56 30 56"
+              stroke="#0c1a35" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+        <line x1="43" y1="29" x2="43" y2="51" stroke="#0c1a35" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M43 29 Q53 29 53 35 Q53 41 43 41" stroke="#0c1a35" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+      </svg>
+      <!-- Wordmark -->
+      <div class="spd-wordmark">
+        <div class="spd-letters">SPD</div>
+        <div class="spd-divider-line"></div>
+        <div class="spd-sub">Advisory</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="#services">บริการ</a>
+      <a href="#pricing">ราคา</a>
+      <a href="#what-we-do">สิ่งที่เราทำ</a>
+      <a href="#why-us">ทำไมต้องเรา</a>
+    </div>
+    <div class="nav-cta">
+      <a href="tel:0909941661" class="btn btn-outline btn-sm">📞 090-994-1661</a>
+      <a href="#cta" class="btn btn-primary btn-sm">ปรึกษาฟรี</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-badge fade-up visible">บริการรับทำบัญชีมืออาชีพ</div>
+    <h1 class="hero-title fade-up visible delay-1">คุณดูแลธุรกิจ<br/><em>เราดูตัวเลขให้คุณ</em></h1>
+    <p class="hero-sub fade-up visible delay-2">หยุดเสียเวลากับงานเอกสารและบัญชี เมื่อเราดูแลภาษีและการเงินครบวงจร เพื่อให้คุณทุ่มเทกับการสร้างธุรกิจที่ยิ่งใหญ่</p>
+    <div class="hero-actions fade-up visible delay-3">
+      <a href="#cta" class="btn btn-primary">พูดคุยกับเรา →</a>
+      <a href="#pricing" class="btn btn-outline">ดูแผนราคา</a>
+    </div>
+    <div class="hero-stats fade-up visible delay-4">
+      <div>
+        <div class="hero-stat-num">30<span>+</span></div>
+        <div class="hero-stat-label">ผู้เชี่ยวชาญในทีม</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">500<span>+</span></div>
+        <div class="hero-stat-label">ลูกค้าที่ไว้ใจเรา</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">1,000<span>+</span></div>
+        <div class="hero-stat-label">บริษัทที่เราจัดตั้ง</div>
+      </div>
+      <div>
+        <div class="hero-stat-num">10<span>+</span></div>
+        <div class="hero-stat-label">ปีประสบการณ์</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO WE SERVE -->
+<section id="who-we-serve" style="background:var(--navy);padding:72px 0;">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:40px;">
+      <div class="section-label" style="color:rgba(255,255,255,0.4);margin-bottom:10px;">WHO WE SERVE</div>
+      <h2 style="color:#fff;margin-bottom:10px;">เราดูแลธุรกิจทุกประเภท</h2>
+      <p style="color:rgba(255,255,255,0.5);max-width:480px;margin:0 auto;font-size:0.95rem;">ไม่ว่าจะเป็นธุรกิจขนาดเล็กหรือกลาง เราเข้าใจบริบทและข้อกำหนดทางบัญชีของแต่ละอุตสาหกรรม</p>
+    </div>
+    <div class="industry-grid fade-up">
+      <div class="industry-card">
+        <div class="industry-icon">🍜</div>
+        <div class="industry-name">ร้านอาหาร</div>
+        <div class="industry-desc">F&B, Café, ร้านเบเกอรี่</div>
+      </div>
+      <div class="industry-card">
+        <div class="industry-icon">🏗️</div>
+        <div class="industry-name">รับเหมาก่อสร้าง</div>
+        <div class="industry-desc">ผู้รับเหมา, ซัพพลายเออร์</div>
+      </div>
+      <div class="industry-card">
+        <div class="industry-icon">🏥</div>
+        <div class="industry-name">คลินิก & สุขภาพ</div>
+        <div class="industry-desc">คลินิก, สปา, ความงาม</div>
+      </div>
+      <div class="industry-card">
+        <div class="industry-icon">🚚</div>
+        <div class="industry-name">ขนส่ง & โลจิสติกส์</div>
+        <div class="industry-desc">รถรับจ้าง, Freight</div>
+      </div>
+      <div class="industry-card">
+        <div class="industry-icon">🛒</div>
+        <div class="industry-name">ขายของออนไลน์</div>
+        <div class="industry-desc">E-commerce, Shopee, Lazada</div>
+      </div>
+      <div class="industry-card">
+        <div class="industry-icon">✈️</div>
+        <div class="industry-name">ท่องเที่ยว</div>
+        <div class="industry-desc">ทัวร์, โรงแรม, กีสต์เฮาส์</div>
+      </div>
+      <div class="industry-card">
+        <div class="industry-icon">🏭</div>
+        <div class="industry-name">โรงงาน & การผลิต</div>
+        <div class="industry-desc">SME, OEM, แปรรูป</div>
+      </div>
+      <div class="industry-card">
+        <div class="industry-icon">📦</div>
+        <div class="industry-name">นำเข้า-ส่งออก</div>
+        <div class="industry-desc">Trading, Import/Export</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:36px;" class="fade-up">
+      <p style="color:rgba(255,255,255,0.4);font-size:0.85rem;">ไม่เห็นประเภทธุรกิจของคุณ? <a href="#cta" style="color:var(--blue);text-decoration:none;font-weight:600;">ปรึกษาเราได้เลย →</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="container">
+    <div class="section-label fade-up">SERVICES</div>
+    <h2 class="fade-up">บริการทำบัญชีของเรา</h2>
+    <div class="services-grid">
+      <div class="service-card fade-up delay-1">
+        <div class="service-icon">📒</div>
+        <h3>จัดทำข้อมูลทางบัญชี</h3>
+        <p>บันทึก รวบรวม และสรุปข้อมูลทางการเงินของธุรกิจคุณอย่างถูกต้องและครบถ้วน</p>
+        <div class="service-items">
+          <div class="service-item">บันทึกบัญชีรายรับ-รายจ่าย</div>
+          <div class="service-item">จัดทำรายงานทางการเงิน</div>
+          <div class="service-item">รายงานกำไร-ขาดทุน</div>
+          <div class="service-item">สรุปงบการเงินประจำเดือน</div>
+        </div>
+      </div>
+      <div class="service-card fade-up delay-2">
+        <div class="service-icon">📄</div>
+        <h3>จัดทำเอกสารตามกฎหมาย</h3>
+        <p>ดูแลเอกสารภาษีและการยื่นแบบให้ถูกต้อง ครบถ้วน และตรงเวลาทุกเดือน</p>
+        <div class="service-items">
+          <div class="service-item">ภาษีมูลค่าเพิ่ม (VAT)</div>
+          <div class="service-item">ภาษีหัก ณ ที่จ่าย ภงด.1/3/53</div>
+          <div class="service-item">เงินสมทบประกันสังคม</div>
+          <div class="service-item">กองทุนทดแทน</div>
+        </div>
+      </div>
+      <div class="service-card fade-up delay-3">
+        <div class="service-icon">🛂</div>
+        <h3>รับทำ Work Permit</h3>
+        <p>ดูแลงานเอกสารใบอนุญาตทำงานให้ชาวต่างชาติครบวงจร รวดเร็ว ถูกต้องตามกฎหมาย</p>
+        <div class="service-items">
+          <div class="service-item">ยื่นขอใบอนุญาตทำงานใหม่</div>
+          <div class="service-item">ต่ออายุ Work Permit</div>
+          <div class="service-item">ประสานงานกรมการจัดหางาน</div>
+          <div class="service-item">เอกสารประกอบครบชุด</div>
+        </div>
+      </div>
+      <div class="service-card fade-up delay-4">
+        <div class="service-icon">📊</div>
+        <h3>วางแผนภาษีเฉพาะกิจการ</h3>
+        <p>วิเคราะห์ตัวเลขและวางแผนภาษีเฉพาะสำหรับธุรกิจของคุณ เพื่อประหยัดภาษีอย่างถูกกฎหมาย</p>
+        <div class="service-items">
+          <div class="service-item">วิเคราะห์งบการเงิน</div>
+          <div class="service-item">วางแผนภาษีเงินได้</div>
+          <div class="service-item">ที่ปรึกษาทางการเงิน</div>
+          <div class="service-item">วางแผนภาษีสิ้นปี</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-label fade-up">PRICING</div>
+    <h2 class="fade-up">แผนราคาที่เหมาะกับทุกขนาดธุรกิจ</h2>
+    <div class="pricing-toggle fade-up">
+      <button class="toggle-btn active" onclick="switchPricing('monthly', this)">บัญชี รายเดือน</button>
+      <button class="toggle-btn" onclick="switchPricing('yearly', this)">บัญชี รายปี</button>
+      <button class="toggle-btn" onclick="switchPricing('workpermit', this)">🛂 Work Permit</button>
+    </div>
+
+    <!-- Monthly -->
+    <div id="monthly-pricing">
+      <div class="pricing-grid">
+        <div class="pricing-card fade-up delay-1">
+          <div class="pricing-plan">SS</div>
+          <div class="pricing-range">ไม่เกิน 5 รายการ</div>
+          <div class="pricing-price">1,500</div>
+          <div class="pricing-period">บาท / เดือน</div>
+          <div class="pricing-items">
+            <div class="pricing-item">เพิ่งเริ่มต้นกิจการ</div>
+            <div class="pricing-item">ไม่มีภาษีมูลค่าเพิ่ม</div>
+            <div class="pricing-item">บันทึกบัญชี</div>
+            <div class="pricing-item">ยื่นภาษีหัก ณ ที่จ่าย</div>
+          </div>
+          <a href="#cta" class="btn btn-outline" style="width:100%;justify-content:center;">เลือกแผนนี้</a>
+        </div>
+        <div class="pricing-card fade-up delay-2">
+          <div class="pricing-plan">S</div>
+          <div class="pricing-range">ไม่เกิน 10 รายการ</div>
+          <div class="pricing-price">2,000</div>
+          <div class="pricing-period">บาท / เดือน</div>
+          <div class="pricing-items">
+            <div class="pricing-item">กิจการขนาดเล็ก</div>
+            <div class="pricing-item">ไม่มีภาษีมูลค่าเพิ่ม</div>
+            <div class="pricing-item">บันทึกบัญชี</div>
+            <div class="pricing-item">สรุปรายการบัญชี</div>
+          </div>
+          <a href="#cta" class="btn btn-outline" style="width:100%;justify-content:center;">เลือกแผนนี้</a>
+        </div>
+        <div class="pricing-card featured fade-up delay-3">
+          <div class="pricing-badge">แนะนำ</div>
+          <div class="pricing-plan">M</div>
+          <div class="pricing-range">ไม่เกิน 25 รายการ</div>
+          <div class="pricing-price">3,000</div>
+          <div class="pricing-period">บาท / เดือน</div>
+          <div class="pricing-items">
+            <div class="pricing-item">กิจการขนาดกลาง</div>
+            <div class="pricing-item">มีภาษีมูลค่าเพิ่ม</div>
+            <div class="pricing-item">บันทึก+สรุปบัญชี</div>
+            <div class="pricing-item">ยื่น VAT & ภาษี</div>
+          </div>
+          <a href="#cta" class="btn btn-white" style="width:100%;justify-content:center;">เลือกแผนนี้</a>
+        </div>
+        <div class="pricing-card fade-up delay-4">
+          <div class="pricing-plan">L</div>
+          <div class="pricing-range">ไม่เกิน 50 รายการ</div>
+          <div class="pricing-price">3,500</div>
+          <div class="pricing-period">บาท / เดือน</div>
+          <div class="pricing-items">
+            <div class="pricing-item">กิจการขนาดใหญ่</div>
+            <div class="pricing-item">มีภาษีมูลค่าเพิ่ม</div>
+            <div class="pricing-item">ครบทุกบริการ</div>
+            <div class="pricing-item">วางแผนภาษี</div>
+          </div>
+          <a href="#cta" class="btn btn-outline" style="width:100%;justify-content:center;">เลือกแผนนี้</a>
+        </div>
+        <div class="pricing-card fade-up delay-5">
+          <div class="pricing-plan">XL</div>
+          <div class="pricing-range">ไม่เกิน 60 รายการ</div>
+          <div class="pricing-price">4,000</div>
+          <div class="pricing-period">บาท / เดือน</div>
+          <div class="pricing-items">
+            <div class="pricing-item">กิจการขนาดใหญ่</div>
+            <div class="pricing-item">มีภาษีมูลค่าเพิ่ม</div>
+            <div class="pricing-item">ครบทุกบริการ</div>
+            <div class="pricing-item">ที่ปรึกษาส่วนตัว</div>
+          </div>
+          <a href="#cta" class="btn btn-outline" style="width:100%;justify-content:center;">เลือกแผนนี้</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Yearly -->
+    <div id="yearly-pricing" style="display:none;">
+      <div class="pricing-grid" style="grid-template-columns:repeat(4,1fr);">
+        <div class="pricing-card fade-up delay-1">
+          <div class="pricing-plan">S</div>
+          <div class="pricing-range">ไม่มีรายการระหว่างปี</div>
+          <div class="pricing-price">3,500</div>
+          <div class="pricing-period">บาท / ปี</div>
+          <div class="pricing-items">
+            <div class="pricing-item">เพิ่งเริ่มต้นกิจการ</div>
+            <div class="pricing-item">งบการเงินประจำปี</div>
+          </div>
+          <a href="#cta" class="btn btn-outline" style="width:100%;justify-content:center;">เลือกแผนนี้</a>
+        </div>
+        <div class="pricing-card featured fade-up delay-2">
+          <div class="pricing-badge">ประหยัดสุด</div>
+          <div class="pricing-plan">M</div>
+          <div class="pricing-range">21–50 รายการ</div>
+          <div class="pricing-price">6,000</div>
+          <div class="pricing-period">บาท / ปี</div>
+          <div class="pricing-items">
+            <div class="pricing-item">กิจการขนาดเล็ก</div>
+            <div class="pricing-item">งบการเงิน + ภาษี</div>
+          </div>
+          <a href="#cta" class="btn btn-white" style="width:100%;justify-content:center;">เลือกแผนนี้</a>
+        </div>
+        <div class="pricing-card fade-up delay-3">
+          <div class="pricing-plan">L</div>
+          <div class="pricing-range">51–100 รายการ</div>
+          <div class="pricing-price">8,000</div>
+          <div class="pricing-period">บาท / ปี</div>
+          <div class="pricing-items">
+            <div class="pricing-item">กิจการขนาดกลาง</div>
+            <div class="pricing-item">ครบทุกบริการ</div>
+          </div>
+          <a href="#cta" class="btn btn-outline" style="width:100%;justify-content:center;">เลือกแผนนี้</a>
+        </div>
+        <div class="pricing-card fade-up delay-4">
+          <div class="pricing-plan">XL</div>
+          <div class="pricing-range">101–150 รายการ</div>
+          <div class="pricing-price">13,000</div>
+          <div class="pricing-period">บาท / ปี</div>
+          <div class="pricing-items">
+            <div class="pricing-item">กิจการขนาดใหญ่</div>
+            <div class="pricing-item">ที่ปรึกษาส่วนตัว</div>
+          </div>
+          <a href="#cta" class="btn btn-outline" style="width:100%;justify-content:center;">เลือกแผนนี้</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Work Permit -->
+    <div id="workpermit-pricing" style="display:none;">
+      <div style="background:var(--blue-light);border:1px solid rgba(41,82,217,0.15);border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:12px;" class="fade-up">
+        <span style="font-size:22px;">🛂</span>
+        <div>
+          <div style="font-weight:700;color:var(--navy);font-size:0.95rem;">บริการรับทำ Work Permit สำหรับชาวต่างชาติ</div>
+          <div style="font-size:0.82rem;color:var(--gray-600);margin-top:2px;">ดูแลครบวงจรตั้งแต่เอกสาร ยื่นคำขอ จนถึงได้รับใบอนุญาต · ประสานงานกรมการจัดหางาน</div>
+        </div>
+      </div>
+      <div class="pricing-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="pricing-card fade-up delay-1">
+          <div class="pricing-plan">ใหม่</div>
+          <div class="pricing-range">ขอใบอนุญาตครั้งแรก</div>
+          <div class="pricing-price">6,500</div>
+          <div class="pricing-period">บาท / ครั้ง</div>
+          <div class="pricing-items">
+            <div class="pricing-item">จัดเตรียมเอกสารครบชุด</div>
+            <div class="pricing-item">ยื่นคำขอแทนนายจ้าง</div>
+            <div class="pricing-item">ติดตามสถานะ</div>
+            <div class="pricing-item">ให้คำปรึกษาตลอดกระบวนการ</div>
+          </div>
+          <a href="#cta" class="btn btn-outline" style="width:100%;justify-content:center;">สอบถามราคา</a>
+        </div>
+        <div class="pricing-card featured fade-up delay-2">
+          <div class="pricing-badge">ยอดนิยม</div>
+          <div class="pricing-plan">ต่ออายุ</div>
+          <div class="pricing-range">ต่ออายุ Work Permit</div>
+          <div class="pricing-price">4,500</div>
+          <div class="pricing-period">บาท / ครั้ง</div>
+          <div class="pricing-items">
+            <div class="pricing-item">ตรวจสอบเอกสารหมดอายุ</div>
+            <div class="pricing-item">จัดเตรียมเอกสารต่ออายุ</div>
+            <div class="pricing-item">ยื่นคำขอต่ออายุ</div>
+            <div class="pricing-item">แจ้งเตือนก่อนหมดอายุ</div>
+          </div>
+          <a href="#cta" class="btn btn-white" style="width:100%;justify-content:center;">สอบถามราคา</a>
+        </div>
+        <div class="pricing-card fade-up delay-3">
+          <div class="pricing-plan">แพ็กเกจ</div>
+          <div class="pricing-range">Work Permit + Visa</div>
+          <div class="pricing-price">9,500</div>
+          <div class="pricing-period">บาท / ครั้ง</div>
+          <div class="pricing-items">
+            <div class="pricing-item">ครอบคลุม Non-B Visa</div>
+            <div class="pricing-item">Work Permit ใหม่</div>
+            <div class="pricing-item">ประสานงานสถานทูต</div>
+            <div class="pricing-item">บริการครบในที่เดียว</div>
+          </div>
+          <a href="#cta" class="btn btn-outline" style="width:100%;justify-content:center;">สอบถามราคา</a>
+        </div>
+      </div>
+      <p style="text-align:center;margin-top:16px;font-size:0.78rem;color:var(--gray-400);">ราคาอาจแตกต่างตามประเภทกิจการและสัญชาติ · <a href="#cta" style="color:var(--blue)">ปรึกษาเราฟรีได้เลย</a></p>
+    </div>
+
+    <p class="pricing-note fade-up">ราคายังไม่รวม VAT · ปรึกษาฟรีก่อนเลือกแผน · <a href="#cta" style="color:var(--blue)">ติดต่อเราได้เลย</a></p>
+  </div>
+</section>
+
+<!-- WHAT WE DO -->
+<section id="what-we-do">
+  <div class="container">
+    <div class="section-label fade-up">WHAT WE DO</div>
+    <h2 class="fade-up">สิ่งที่เราทำเพื่อธุรกิจคุณ</h2>
+    <div class="tasks-grid">
+      <div class="tasks-panel fade-up delay-1">
+        <div class="tasks-title">
+          <div class="tasks-dot"></div>
+          <h3>ทุกเดือน</h3>
+        </div>
+        <div class="task-item">
+          <div class="task-name">การบันทึกบัญชีประจำเดือน</div>
+          <div class="task-detail">บันทึกรายรับ-รายจ่าย จัดการใบเสร็จ ใบกำกับภาษี ใบแจ้งหนี้</div>
+        </div>
+        <div class="task-item">
+          <div class="task-name">ยื่นภาษีมูลค่าเพิ่ม (VAT)</div>
+          <div class="task-detail">จัดทำรายงานภาษีซื้อ-ขาย ยื่น ภ.พ.30 ให้กรมสรรพากร</div>
+        </div>
+        <div class="task-item">
+          <div class="task-name">จัดการภาษีหัก ณ ที่จ่าย</div>
+          <div class="task-detail">คำนวณ จัดทำ และยื่น ภงด.1, ภงด.3, ภงด.53</div>
+        </div>
+        <div class="task-item">
+          <div class="task-name">ตรวจสอบและจัดการเงินเดือน</div>
+          <div class="task-detail">คำนวณเงินเดือน ประกันสังคม และภาษีเงินได้บุคคลธรรมดา</div>
+        </div>
+        <div class="task-item">
+          <div class="task-name">รายงานทางการเงินระหว่างเดือน</div>
+          <div class="task-detail">วิเคราะห์ข้อมูลการเงินเพื่อสนับสนุนการตัดสินใจ</div>
+        </div>
+      </div>
+      <div class="tasks-panel fade-up delay-2">
+        <div class="tasks-title">
+          <div class="tasks-dot" style="background:var(--gold)"></div>
+          <h3>ทุกปี</h3>
+        </div>
+        <div class="task-item">
+          <div class="task-name">จัดทำงบการเงินประจำปี</div>
+          <div class="task-detail">รายงานทางการเงิน เอกสารส่งกรมพัฒนาธุรกิจการค้า</div>
+        </div>
+        <div class="task-item">
+          <div class="task-name">ภาษีเงินได้นิติบุคคล</div>
+          <div class="task-detail">ยื่น ภงด.51 (กลางปี) และ ภงด.50 (สิ้นปี)</div>
+        </div>
+        <div class="task-item">
+          <div class="task-name">ยื่นแบบภาษีบุคคลธรรมดา</div>
+          <div class="task-detail">จัดการ ภงด.90 และ ภงด.91 สำหรับเจ้าของและพนักงาน</div>
+        </div>
+        <div class="task-item">
+          <div class="task-name">ทะเบียนผู้ถือหุ้น บอจ.5</div>
+          <div class="task-detail">จัดเตรียมและยื่นทะเบียนผู้ถือหุ้นให้กรมพัฒนาธุรกิจการค้า</div>
+        </div>
+        <div class="task-item">
+          <div class="task-name">ตรวจสอบบัญชี (Audit)</div>
+          <div class="task-detail">ทำงานร่วมกับผู้สอบบัญชีรับอนุญาต (CPA)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIAL -->
+<section id="testimonial">
+  <div class="container">
+    <div class="testimonial-card fade-up">
+      <span class="quote-mark">"</span>
+      <p class="testimonial-text">จากที่เคยต้องนั่งจัดการบัญชีเองทุกคืน ตอนนี้มีเวลาโฟกัสกับการพัฒนาเมนูใหม่และดูแลพนักงานได้เต็มที่ ที่สำคัญช่วยวิเคราะห์ตัวเลขให้เห็นว่าควรปรับปรุงส่วนไหนเพื่อเพิ่มกำไร</p>
+      <div class="testimonial-author">
+        <div class="testimonial-avatar">ท</div>
+        <div>
+          <div class="testimonial-name">คุณทรงกรด</div>
+          <div class="testimonial-role">เจ้าของร้านอาหาร</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section id="why-us">
+  <div class="container">
+    <div class="section-label fade-up">WHY LEKACCOUNT</div>
+    <h2 class="fade-up">เพราะการทำบัญชีไม่ใช่แค่เรื่องของตัวเลข</h2>
+    <div class="why-grid">
+      <div class="why-card fade-up delay-1">
+        <div class="why-num">01</div>
+        <h3>ติดต่อง่าย ตอบเร็ว</h3>
+        <p>ทีมงานพร้อมตอบคำถามและให้คำปรึกษาในช่วงเวลาบริการ ผ่าน LINE, โทรศัพท์</p>
+      </div>
+      <div class="why-card fade-up delay-2">
+        <div class="why-num">02</div>
+        <h3>ประหยัดค่าใช้จ่าย</h3>
+        <p>ไม่ต้องจ้างนักบัญชีประจำ ลดค่าใช้จ่ายได้สูงสุด 60% เมื่อเทียบกับพนักงานบัญชีเต็มเวลา</p>
+      </div>
+      <div class="why-card fade-up delay-3">
+        <div class="why-num">03</div>
+        <h3>เชี่ยวชาญเฉพาะกิจการ</h3>
+        <p>มีประสบการณ์กับธุรกิจหลากหลายประเภท เข้าใจบริบทและปัญหาเฉพาะของแต่ละอุตสาหกรรม</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="container">
+    <div class="cta-content fade-up">
+      <h2>พร้อมให้เราดูแลตัวเลขให้คุณแล้วหรือยัง?</h2>
+      <p>ปรึกษาฟรี ไม่มีค่าใช้จ่าย ไม่มีข้อผูกมัด</p>
+      <div class="cta-buttons">
+        <a href="https://lin.ee/96LaLwl" class="btn btn-primary btn-lg" style="padding:14px 32px;font-size:1rem;">💬 พูดคุยผ่าน LINE</a>
+        <a href="tel:0889499524" class="btn btn-white btn-lg" style="padding:14px 32px;font-size:1rem;">📞 088-949-9524</a>
+      </div>
+      <p class="cta-contact">หรือส่งอีเมลมาที่ <a href="mailto:info@lekaccount.com">info@lekaccount.com</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+          <svg width="32" height="32" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="40,4 76,40 40,76 4,40" stroke="#c8a96e" stroke-width="1" fill="none" opacity="0.3"/>
+            <polygon points="40,14 66,40 40,66 14,40" stroke="#c8a96e" stroke-width="1.5" fill="none"/>
+            <path d="M30 32 Q24 32 24 38 Q24 44 30 44 Q36 44 36 50 Q36 56 30 56"
+                  stroke="#c8a96e" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <line x1="43" y1="29" x2="43" y2="51" stroke="#c8a96e" stroke-width="2" stroke-linecap="round"/>
+            <path d="M43 29 Q53 29 53 35 Q53 41 43 41" stroke="#c8a96e" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </svg>
+          <div>
+            <div style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:16px;letter-spacing:5px;color:#c8a96e;padding-left:5px;">SPD</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-weight:300;font-size:8px;letter-spacing:4px;color:rgba(200,169,110,0.6);text-transform:uppercase;">Advisory</div>
+          </div>
+        </div>
+        <p>สำนักงานบัญชีมืออาชีพ ให้บริการธุรกิจ SME ทั่วประเทศ ดูแลบัญชีครบวงจรเพื่อให้ธุรกิจเติบโตอย่างมั่นคง</p>
+        <p style="margin-top:8px;">34 ซอยเพชรเกษม 28 แยก 16 แขวงภาษีเจริญ กรุงเทพมหานคร</p>
+      </div>
+      <div class="footer-col">
+        <h4>บริการ</h4>
+        <a href="#services">รับทำบัญชี</a>
+        <a href="#services">ตรวจสอบบัญชี</a>
+        <a href="#services">งานทะเบียน</a>
+        <a href="#services">วางแผนภาษี</a>
+      </div>
+      <div class="footer-col">
+        <h4>ติดต่อ</h4>
+        <a href="tel:0889499524">088-949-9524</a>
+        <a href="https://lin.ee/96LaLwl">LINE: @lekaccount</a>
+        <a href="#pricing">ดูแผนราคา</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 LekAccount. All rights reserved.</p>
+      <p>ผู้จัดทำบัญชีและผู้ตรวจสอบบัญชีมืออาชีพ มากกว่า 10 ปี</p>
+    </div>
+  </div>
+</footer>
+
+<!-- TWEAKS PANEL -->
+<div id="tweaks-panel">
+  <h4>Tweaks</h4>
+  <div class="tweak-row">
+    <label class="tweak-label">สีหลัก (Accent)</label>
+    <input type="color" value="#2952d9" oninput="applyTweak('--blue', this.value); applyTweak('--blue-mid', this.value);">
+  </div>
+  <div class="tweak-row">
+    <label class="tweak-label">สีพื้นหลัก (Navy)</label>
+    <input type="color" value="#0c1a35" oninput="applyTweak('--navy', this.value);">
+  </div>
+  <div class="tweak-row">
+    <label class="tweak-label">ฟอนต์หัวข้อ</label>
+    <select onchange="applyFont(this.value)">
+      <option value="'DM Serif Display', serif">DM Serif Display</option>
+      <option value="'Playfair Display', serif">Playfair Display</option>
+      <option value="Georgia, serif">Georgia</option>
+      <option value="'Sarabun', sans-serif">Sarabun (Sans)</option>
+    </select>
+  </div>
+  <div class="tweak-row">
+    <label class="tweak-label">ขนาดฟอนต์ Body</label>
+    <input type="range" min="14" max="20" value="16" oninput="document.body.style.fontSize=this.value+'px'">
+  </div>
+</div>
+
+<script>
+// Nav scroll
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// Fade-up observer
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// Pricing toggle
+function switchPricing(type, btn) {
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('monthly-pricing').style.display = type === 'monthly' ? '' : 'none';
+  document.getElementById('yearly-pricing').style.display = type === 'yearly' ? '' : 'none';
+  document.getElementById('workpermit-pricing').style.display = type === 'workpermit' ? '' : 'none';
+}
+
+// Tweaks
+function applyTweak(varName, value) {
+  document.documentElement.style.setProperty(varName, value);
+  const lightVal = value + '20';
+  if (varName === '--blue') document.documentElement.style.setProperty('--blue-light', lightVal);
+  window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [varName]: value } }, '*');
+}
+function applyFont(val) {
+  document.querySelectorAll('h1,h2,.display,.pricing-plan,.hero-stat-num').forEach(el => el.style.fontFamily = val);
+}
+
+// Tweaks toggle
+const tweaksPanel = document.getElementById('tweaks-panel');
+window.addEventListener('message', e => {
+  if (e.data?.type === '__activate_edit_mode') tweaksPanel.style.display = 'flex';
+  if (e.data?.type === '__deactivate_edit_mode') tweaksPanel.style.display = 'none';
+});
+window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+
+// Persist pricing toggle
+const savedTab = localStorage.getItem('lk_pricing_tab');
+if (savedTab) {
+  const btn = document.querySelector(`.toggle-btn:${savedTab === 'yearly' ? 'last-child' : 'first-child'}`);
+  if (btn) switchPricing(savedTab, btn);
+}
+document.querySelectorAll('.toggle-btn').forEach(b => {
+  b.addEventListener('click', () => {
+    const type = b.textContent.includes('ปี') ? 'yearly' : 'monthly';
+    localStorage.setItem('lk_pricing_tab', type);
+  });
+});
+</script>
+</body>
+</html>
